@@ -6,7 +6,7 @@ import (
 	"html/template"
 	"log"
 
-	"github.com/energy-uktc/grouping-api/config"
+	"github.com/energy-uktc/eventpool-api/config"
 )
 
 type Request struct {

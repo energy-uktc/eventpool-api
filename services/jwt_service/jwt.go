@@ -8,9 +8,9 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/energy-uktc/grouping-api/config"
-	"github.com/energy-uktc/grouping-api/models"
-	"github.com/energy-uktc/grouping-api/utils"
+	"github.com/energy-uktc/eventpool-api/config"
+	"github.com/energy-uktc/eventpool-api/models"
+	"github.com/energy-uktc/eventpool-api/utils"
 )
 
 const (

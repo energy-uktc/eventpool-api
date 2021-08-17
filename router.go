@@ -3,9 +3,9 @@ package main
 import (
 	"log"
 
-	"github.com/energy-uktc/grouping-api/controllers/api"
-	"github.com/energy-uktc/grouping-api/controllers/web"
-	"github.com/energy-uktc/grouping-api/middlewares"
+	"github.com/energy-uktc/eventpool-api/controllers/api"
+	"github.com/energy-uktc/eventpool-api/controllers/web"
+	"github.com/energy-uktc/eventpool-api/middlewares"
 	"github.com/gin-gonic/gin"
 )
 

@@ -4,7 +4,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/energy-uktc/grouping-api/config"
+	"github.com/energy-uktc/eventpool-api/config"
 	"gorm.io/gorm"
 )
 

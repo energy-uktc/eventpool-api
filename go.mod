@@ -1,4 +1,4 @@
-module github.com/energy-uktc/grouping-api
+module github.com/energy-uktc/eventpool-api
 
 go 1.16
 

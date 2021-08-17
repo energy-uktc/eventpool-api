@@ -3,7 +3,7 @@ package api
 import (
 	"time"
 
-	"github.com/energy-uktc/grouping-api/models"
+	"github.com/energy-uktc/eventpool-api/models"
 	"github.com/gin-gonic/gin"
 )
 

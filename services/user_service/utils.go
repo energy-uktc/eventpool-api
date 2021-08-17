@@ -3,7 +3,7 @@ package user_service
 import (
 	"log"
 
-	"github.com/energy-uktc/grouping-api/utils"
+	"github.com/energy-uktc/eventpool-api/utils"
 	"golang.org/x/crypto/bcrypt"
 )
 

@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/energy-uktc/grouping-api/models"
-	"github.com/energy-uktc/grouping-api/services/jwt_service"
-	"github.com/energy-uktc/grouping-api/utils/constants"
+	"github.com/energy-uktc/eventpool-api/models"
+	"github.com/energy-uktc/eventpool-api/services/jwt_service"
+	"github.com/energy-uktc/eventpool-api/utils/constants"
 	"github.com/gin-gonic/gin"
 )
 

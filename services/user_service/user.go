@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/energy-uktc/grouping-api/entities"
-	"github.com/energy-uktc/grouping-api/models"
-	"github.com/energy-uktc/grouping-api/repositories/user_repository"
-	"github.com/energy-uktc/grouping-api/services/jwt_service"
-	"github.com/energy-uktc/grouping-api/utils"
+	"github.com/energy-uktc/eventpool-api/entities"
+	"github.com/energy-uktc/eventpool-api/models"
+	"github.com/energy-uktc/eventpool-api/repositories/user_repository"
+	"github.com/energy-uktc/eventpool-api/services/jwt_service"
+	"github.com/energy-uktc/eventpool-api/utils"
 )
 
 func RegisterUser(userModel *models.CreateUserRequest) (*entities.User, error) {

@@ -4,11 +4,11 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/energy-uktc/grouping-api/middlewares"
-	"github.com/energy-uktc/grouping-api/models"
-	"github.com/energy-uktc/grouping-api/services/mail_service"
-	"github.com/energy-uktc/grouping-api/services/user_service"
-	"github.com/energy-uktc/grouping-api/utils"
+	"github.com/energy-uktc/eventpool-api/middlewares"
+	"github.com/energy-uktc/eventpool-api/models"
+	"github.com/energy-uktc/eventpool-api/services/mail_service"
+	"github.com/energy-uktc/eventpool-api/services/user_service"
+	"github.com/energy-uktc/eventpool-api/utils"
 	"github.com/gin-gonic/gin"
 )
 

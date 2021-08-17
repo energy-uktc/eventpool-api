@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/smtp"
 
-	"github.com/energy-uktc/grouping-api/config"
+	"github.com/energy-uktc/eventpool-api/config"
 )
 
 var (

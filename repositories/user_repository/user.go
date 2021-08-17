@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/energy-uktc/grouping-api/database"
-	"github.com/energy-uktc/grouping-api/entities"
+	"github.com/energy-uktc/eventpool-api/database"
+	"github.com/energy-uktc/eventpool-api/entities"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 )

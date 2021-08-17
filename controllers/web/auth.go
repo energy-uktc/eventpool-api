@@ -3,8 +3,8 @@ package web
 import (
 	"net/http"
 
-	"github.com/energy-uktc/grouping-api/models"
-	"github.com/energy-uktc/grouping-api/services/user_service"
+	"github.com/energy-uktc/eventpool-api/models"
+	"github.com/energy-uktc/eventpool-api/services/user_service"
 	"github.com/gin-gonic/gin"
 )
 

@@ -3,7 +3,7 @@ package database
 import (
 	"fmt"
 
-	"github.com/energy-uktc/grouping-api/entities"
+	"github.com/energy-uktc/eventpool-api/entities"
 )
 
 //UpdateSchema performs database migrations for used entities

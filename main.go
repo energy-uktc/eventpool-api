@@ -1,6 +1,6 @@
 package main
 
-import "github.com/energy-uktc/grouping-api/database"
+import "github.com/energy-uktc/eventpool-api/database"
 
 func main() {
 	database.SetupDatabase()
