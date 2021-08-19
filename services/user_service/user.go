@@ -13,6 +13,18 @@ import (
 	"github.com/energy-uktc/eventpool-api/utils"
 )
 
+func GetUser(id string) (*models.UserModel, error) {
+	var user *entities.User
+	var err error
+	if user, err = user_repository.FindById(id); err != nil {
+		return nil, err
+	}
+	return &models.UserModel{
+		Email:    user.Email,
+		UserName: user.UserName,
+	}, nil
+}
+
 func RegisterUser(userModel *models.CreateUserRequest) (*entities.User, error) {
 	if err := validateEmail(userModel.Email); err != nil {
 		return nil, err

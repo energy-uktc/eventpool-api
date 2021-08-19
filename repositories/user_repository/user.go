@@ -25,7 +25,7 @@ func FindById(id string) (*entities.User, error) {
 	response := database.DbConn.First(&existingUser, uuid.FromStringOrNil(id))
 	if response.Error != nil {
 		if errors.Is(response.Error, gorm.ErrRecordNotFound) {
-			return nil, nil
+			return nil, fmt.Errorf("User Not Found")
 		}
 		log.Println(response.Error)
 		return nil, fmt.Errorf("Something went wrong")
@@ -129,11 +129,6 @@ func SetUserVerified(user *entities.User) error {
 		if err := tx.Model(&user).Updates(map[string]interface{}{"Verified": true}).Error; err != nil {
 			log.Println(err)
 			return fmt.Errorf("Something went wrong during user verification. PLease try again!")
-		}
-
-		if err := tx.Delete(entities.UserToken{}, "user_id = ? AND type = ?", user.ID, entities.VerificationCode).Error; err != nil {
-			log.Println(err)
-			return fmt.Errorf("Something went wrong")
 		}
 		return nil
 	})

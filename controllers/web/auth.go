@@ -1,6 +1,7 @@
 package web
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/energy-uktc/eventpool-api/models"
@@ -14,13 +15,17 @@ func RegisterAuthRoutes(g *gin.RouterGroup) {
 
 func verifyCode(c *gin.Context) {
 	verificationCode := c.Query("code")
+	mobileLink := c.Query("mobileLink")
+
 	if verificationCode == "" {
-		c.HTML(http.StatusBadRequest, "error.tmpl", gin.H{
+		c.HTML(http.StatusOK, "web/auth/verifyUser.html", gin.H{
+			"email":        "",
+			"mobileLink":   fmt.Sprintf("%s?verified=%v&errorMessage=%s", mobileLink, false, "No verification provided"),
+			"verified":     false,
 			"errorMessage": "No verification provided",
 		})
 		return
 	}
-	mobileLink := c.Query("mobileLink")
 	verifyUser := &models.VerifyUserRequest{
 		VerificationCode:  verificationCode,
 		ReturnSecureToken: true,
@@ -28,14 +33,23 @@ func verifyCode(c *gin.Context) {
 
 	verifyUserResponse, err := user_service.VerifyUserCode(verifyUser)
 	if err != nil {
-		c.HTML(http.StatusBadRequest, "error.tmpl", gin.H{
+		c.HTML(http.StatusOK, "web/auth/verifyUser.html", gin.H{
+			"email":        "",
+			"mobileLink":   fmt.Sprintf("%s?verified=%v&errorMessage=%s", mobileLink, false, err.Error()),
+			"verified":     false,
 			"errorMessage": err.Error(),
 		})
 		return
 	}
 
-	c.HTML(http.StatusOK, "web/auth/verifyUser.tmpl", gin.H{
-		"email":      verifyUserResponse.Email,
-		"mobileLink": mobileLink,
+	c.HTML(http.StatusOK, "web/auth/verifyUser.html", gin.H{
+		"email":        verifyUserResponse.Email,
+		"mobileLink":   fmt.Sprintf("%s?verified=%v", mobileLink, true),
+		"verified":     true,
+		"errorMessage": "",
 	})
+	// c.HTML(http.StatusOK, "web/auth/verifyUser.html", gin.H{
+	// 	"email":      "energy.uktc@gmail.com",
+	// 	"mobileLink": mobileLink,
+	// })
 }
