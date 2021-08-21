@@ -19,6 +19,7 @@ func RegisterAuthRoutes(g *gin.RouterGroup) {
 	g.POST("verify", verifyCode)
 	g.POST("resendVerificationCode", resendVerificationCode)
 	g.POST("refreshToken", refreshToken)
+	g.POST("password", changePassword)
 }
 
 func registerUser(c *gin.Context) {
@@ -138,6 +139,49 @@ func revokeRefreshToken(c *gin.Context) {
 			"error": err.Error(),
 		})
 		return
+	}
+
+	c.Status(http.StatusOK)
+}
+
+func changePassword(c *gin.Context) {
+	changePasswordRequest := new(models.ChangePasswordRequest)
+	if c.Bind(changePasswordRequest) != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+	switch changePasswordRequest.Action {
+	case "change":
+		if err := user_service.ChangePassword(changePasswordRequest.Email, changePasswordRequest.OldPassword, changePasswordRequest.NewPassword); err != nil {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+	case "reset":
+		if err := user_service.ResetPassword(changePasswordRequest.VerificationCode, changePasswordRequest.NewPassword); err != nil {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+	case "sendResetEmail":
+		mobileAppUrl := c.Query("mobileAppUrl")
+		user, err := user_service.FindUserByEmail(changePasswordRequest.Email)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+		if code, err := user_service.GenerateResetPasswordCode(user); err != nil {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		} else {
+			go mail_service.ResetPasswordRequest(user.UserName, user.Email, code, mobileAppUrl)
+		}
 	}
 
 	c.Status(http.StatusOK)

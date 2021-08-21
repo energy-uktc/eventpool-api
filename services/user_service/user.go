@@ -25,6 +25,22 @@ func GetUser(id string) (*models.UserModel, error) {
 	}, nil
 }
 
+func UpdateUser(id string, updatedUser *models.UpdateUserModel) (*models.UserModel, error) {
+	var user *entities.User
+	var err error
+	if user, err = user_repository.FindById(id); err != nil {
+		return nil, err
+	}
+	user.UserName = updatedUser.UserName
+	if user, err = user_repository.UpdateUser(user); err != nil {
+		return nil, err
+	}
+	return &models.UserModel{
+		Email:    user.Email,
+		UserName: user.UserName,
+	}, nil
+}
+
 func RegisterUser(userModel *models.CreateUserRequest) (*entities.User, error) {
 	if err := validateEmail(userModel.Email); err != nil {
 		return nil, err
@@ -62,11 +78,21 @@ func FindUnverifiedUser(userModel *models.AuthUserRequest) (*entities.User, erro
 	return user, nil
 }
 
+func FindUserByEmail(email string) (*entities.User, error) {
+	user, _ := user_repository.FindByEmail(email)
+	if user == nil {
+		return nil, fmt.Errorf("User %s not found", email)
+	}
+	return user, nil
+}
+
 func VerifyUserCode(verifyCodeModel *models.VerifyUserRequest) (*models.VerifyUserResponse, error) {
-	user, err := user_repository.FindByVerificationCode(verifyCodeModel.VerificationCode)
+	userToken, err := user_repository.FindUserToken(verifyCodeModel.VerificationCode, entities.VerificationCode)
 	if err != nil {
 		return nil, err
 	}
+	user := &userToken.User
+
 	if user.Verified {
 		return nil, fmt.Errorf("User is already verified")
 	}
@@ -113,7 +139,7 @@ func RefreshToken(refreshTokenRequest *models.RefreshTokenRequest) (*models.Gene
 	}
 	claims := jwt_service.GetClaims(token)
 	hashedRefreshToken := sha256.Sum256([]byte(refreshTokenRequest.RefreshToken + claims.Id))
-	userToken, _ := user_repository.FindRefreshToken(hex.EncodeToString(hashedRefreshToken[:]))
+	userToken, _ := user_repository.FindUserToken(hex.EncodeToString(hashedRefreshToken[:]), entities.RefreshToken)
 	if userToken == nil {
 		return nil, fmt.Errorf("Refresh token not valid")
 	}
@@ -130,7 +156,7 @@ func RefreshToken(refreshTokenRequest *models.RefreshTokenRequest) (*models.Gene
 }
 
 func RevokeRefreshToken(userContext *models.UserContextInfo) error {
-	return user_repository.DeleteRefreshTokens(entities.NewUserFromID(userContext.UserId))
+	return user_repository.DeleteUserTokens(entities.RefreshToken, entities.NewUserFromID(userContext.UserId))
 }
 
 func checkPasswordMatch(password string, user *entities.User) error {
@@ -142,7 +168,7 @@ func checkPasswordMatch(password string, user *entities.User) error {
 }
 
 func GenerateVerificationCode(user *entities.User) (string, error) {
-	err := user_repository.DeleteVerificationCodes(user)
+	err := user_repository.DeleteUserTokens(entities.VerificationCode, user)
 	if err != nil {
 		return "", err
 	}
@@ -154,6 +180,58 @@ func GenerateVerificationCode(user *entities.User) (string, error) {
 	return createdCode.Token, nil
 }
 
+func ResetPassword(verificationCode string, newPassword string) error {
+	userToken, err := user_repository.FindUserToken(verificationCode, entities.ResetPasswordCode)
+	if err != nil {
+		return err
+	}
+
+	if err := validatePassword(newPassword); err != nil {
+		return err
+	}
+
+	user := &userToken.User
+	if err := user_repository.SetNewPassword(hashAndSalt(newPassword), user); err != nil {
+		return err
+	}
+
+	if err := user_repository.DeleteUserTokens(entities.ResetPasswordCode, user); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func GenerateResetPasswordCode(user *entities.User) (string, error) {
+	if err := user_repository.DeleteUserTokens(entities.ResetPasswordCode, user); err != nil {
+		return "", err
+	}
+
+	verificationCode := getVerificationCode(10)
+	createdCode, err := user_repository.CreateResetPasswordVerificationCode(verificationCode, user)
+	if err != nil {
+		return "", err
+	}
+	return createdCode.Token, nil
+}
+
+func ChangePassword(email string, oldPassword string, newPassword string) error {
+	user, _ := user_repository.FindByEmail(email)
+	if user == nil {
+		return fmt.Errorf("User %s not found", email)
+	}
+	if err := checkPasswordMatch(oldPassword, user); err != nil {
+		return err
+	}
+	if err := validatePassword(newPassword); err != nil {
+		return err
+	}
+	if err := user_repository.SetNewPassword(hashAndSalt(newPassword), user); err != nil {
+		return err
+	}
+	return nil
+}
+
 func generateToken(user *entities.User) (*models.GeneratedTokenResponse, error) {
 	generatedToken, err := jwt_service.CreateToken(user.ID.String(), nil)
 	if err != nil {
@@ -162,7 +240,7 @@ func generateToken(user *entities.User) (*models.GeneratedTokenResponse, error) 
 
 	refreshToken := utils.GenerateStringRandomLength(128, 256)
 	hashedRefreshToken := sha256.Sum256([]byte(refreshToken + generatedToken.TokenId))
-	err = user_repository.DeleteRefreshTokens(user)
+	err = user_repository.DeleteUserTokens(entities.RefreshToken, user)
 	if err != nil {
 		return nil, err
 	}

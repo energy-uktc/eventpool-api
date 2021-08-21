@@ -34,6 +34,27 @@ func VerificationCodeRequest(name string, email string, verificationCode string,
 	}
 }
 
+func ResetPasswordRequest(name string, email string, verificationCode string, mobileAppUrl string) {
+	request := &Request{
+		to:      []string{email},
+		subject: "Eventpool: Password reset",
+	}
+
+	valuesMap := make(map[string]string)
+	valuesMap["name"] = name
+	valuesMap["url"] = fmt.Sprintf("%s/web/auth/resetPassword?code=%s&mobileLink=%s", config.Properties.Hostname, verificationCode, mobileAppUrl)
+
+	if err := request.parseTemplate("./templates/mail/password_reset.html", valuesMap); err == nil {
+		mime := "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
+		subject := "Subject: " + request.subject + "\n"
+		message := subject + mime + "\n" + request.body
+		send(request.to, message)
+	} else {
+		log.Println(err)
+	}
+
+}
+
 func (r *Request) parseTemplate(templateFileName string, data interface{}) error {
 	t, err := template.ParseFiles(templateFileName)
 	if err != nil {

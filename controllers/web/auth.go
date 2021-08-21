@@ -11,6 +11,7 @@ import (
 
 func RegisterAuthRoutes(g *gin.RouterGroup) {
 	g.GET("verify", verifyCode)
+	g.GET("resetPassword", resetPassword)
 }
 
 func verifyCode(c *gin.Context) {
@@ -22,7 +23,7 @@ func verifyCode(c *gin.Context) {
 			"email":        "",
 			"mobileLink":   fmt.Sprintf("%s?verified=%v&errorMessage=%s", mobileLink, false, "No verification provided"),
 			"verified":     false,
-			"errorMessage": "No verification provided",
+			"errorMessage": "No verification code provided",
 		})
 		return
 	}
@@ -48,8 +49,20 @@ func verifyCode(c *gin.Context) {
 		"verified":     true,
 		"errorMessage": "",
 	})
-	// c.HTML(http.StatusOK, "web/auth/verifyUser.html", gin.H{
-	// 	"email":      "energy.uktc@gmail.com",
-	// 	"mobileLink": mobileLink,
-	// })
+}
+
+func resetPassword(c *gin.Context) {
+	verificationCode := c.Query("code")
+	mobileLink := c.Query("mobileLink")
+
+	if verificationCode == "" {
+		c.HTML(http.StatusOK, "web/auth/useMobile.html", gin.H{
+			"mobileLink": fmt.Sprintf("%s?verificationCode=%v&errorMessage=%s", mobileLink, "", "No verification provided"),
+		})
+		return
+	}
+
+	c.HTML(http.StatusOK, "web/auth/useMobile.html", gin.H{
+		"mobileLink": fmt.Sprintf("%s?verificationCode=%v", mobileLink, verificationCode),
+	})
 }

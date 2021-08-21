@@ -12,6 +12,7 @@ type TokenType int
 const (
 	RefreshToken TokenType = iota + 1
 	VerificationCode
+	ResetPasswordCode
 )
 
 func (t TokenType) String() string {

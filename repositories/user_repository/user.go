@@ -48,26 +48,34 @@ func FindByEmail(userEmail string) (*entities.User, error) {
 	return existingUser, nil
 }
 
-func FindByVerificationCode(verificationCode string) (*entities.User, error) {
-	var userToken *entities.UserToken
-	response := database.DbConn.Joins("User").First(&userToken, "type = ? AND token = ?", entities.VerificationCode, verificationCode)
+func UpdateUser(user *entities.User) (*entities.User, error) {
+	response := database.DbConn.Save(&user)
 	if response.Error != nil {
 		if errors.Is(response.Error, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("Verification code not found")
+			return nil, fmt.Errorf("User Not Found")
 		}
 		log.Println(response.Error)
 		return nil, fmt.Errorf("Something went wrong")
 	}
 
-	return &userToken.User, nil
+	return FindById(user.ID.String())
 }
 
-func FindRefreshToken(token string) (*entities.UserToken, error) {
+func FindUserToken(code string, tokenType entities.TokenType) (*entities.UserToken, error) {
 	var userToken *entities.UserToken
-	response := database.DbConn.Joins("User").First(&userToken, "type = ? AND token = ?", entities.RefreshToken, token)
+	response := database.DbConn.Joins("User").First(&userToken, "type = ? AND token = ?", tokenType, code)
 	if response.Error != nil {
 		if errors.Is(response.Error, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("Refresh token not found")
+			var err error
+			switch tokenType {
+			case entities.VerificationCode:
+				err = fmt.Errorf("Verification code not found")
+			case entities.RefreshToken:
+				err = fmt.Errorf("Refresh token not found")
+			case entities.ResetPasswordCode:
+				err = fmt.Errorf("Reset password verification code not found")
+			}
+			return nil, err
 		}
 		log.Println(response.Error)
 		return nil, fmt.Errorf("Something went wrong")
@@ -76,17 +84,8 @@ func FindRefreshToken(token string) (*entities.UserToken, error) {
 	return userToken, nil
 }
 
-func DeleteVerificationCodes(user *entities.User) error {
-	response := database.DbConn.Delete(entities.UserToken{}, "user_id = ? AND type = ?", user.ID, entities.VerificationCode)
-	if response.Error != nil {
-		log.Println(response.Error)
-		return fmt.Errorf("Something went wrong")
-	}
-	return nil
-}
-
-func DeleteRefreshTokens(user *entities.User) error {
-	response := database.DbConn.Delete(entities.UserToken{}, "user_id = ? AND type = ?", user.ID, entities.RefreshToken)
+func DeleteUserTokens(tokenType entities.TokenType, user *entities.User) error {
+	response := database.DbConn.Delete(entities.UserToken{}, "user_id = ? AND type = ?", user.ID, tokenType)
 	if response.Error != nil {
 		log.Println(response.Error)
 		return fmt.Errorf("Something went wrong")
@@ -112,6 +111,15 @@ func CreateRefreshToken(token string, user *entities.User) (*entities.UserToken,
 	return userToken, nil
 }
 
+func CreateResetPasswordVerificationCode(token string, user *entities.User) (*entities.UserToken, error) {
+	userToken, err := createUserToken(entities.ResetPasswordCode, token, user)
+	if err != nil {
+		log.Println(err)
+		return nil, fmt.Errorf("Something went wrong during verification code creation. PLease try again!")
+	}
+	return userToken, nil
+}
+
 func createUserToken(tokenType entities.TokenType, token string, user *entities.User) (*entities.UserToken, error) {
 	userToken := &entities.UserToken{
 		UserID: user.ID,
@@ -132,4 +140,12 @@ func SetUserVerified(user *entities.User) error {
 		}
 		return nil
 	})
+}
+
+func SetNewPassword(newPassword string, user *entities.User) error {
+	if err := database.DbConn.Model(&user).Update("password", newPassword).Error; err != nil {
+		log.Println(err)
+		return fmt.Errorf("Something went wrong setting the new password!")
+	}
+	return nil
 }

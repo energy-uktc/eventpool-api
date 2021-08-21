@@ -1,0 +1,49 @@
+{{ define "web/auth/useMobile.html" }}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+  <head>
+    <script>
+      document.addEventListener("DOMContentLoaded", function(event) {
+        try {
+            let uri = new URL("{{ .mobileLink }}");
+            window.location = uri.href
+        } catch(e) {
+          console.log("NOT A VALID URL")
+        }
+      });  
+    </script>
+  </head>
+  <body  style="font-family: Helvetica,Arial,sans-serif; font-size: 18px; color: #33475b; margin: 0;padding: 0;">
+    <header style="position: fixed;
+                  top: 0;
+                  width: 100%;">
+      <div style="width: 100%;
+                  height: 60px;
+                  box-shadow: 0 0 10px 0 rgb(0 0 0 / 40%);
+                  position: relative;">
+        <img src="../../../assets/images/logo.png" style="width: 170px; margin-left: 40px; margin-top: -17px;">
+      </div>
+    </header>
+    <div  style="position: fixed;
+                text-align: center;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(#FFF,#DDFFE7,#DDFFE7);
+                margin-right: auto;
+                margin-top: 5rem;
+                margin-left: auto;">
+      <h1>
+        You need the mobile app in order to use Eventpool functionalities
+      </h1>
+      <p>
+        You can download the app from Google Play Store.<br>
+        <a href="http://play.google.com/store/apps/collection/topselling_free">
+          <img src="../../../assets/images/google-play-badge.png"  style="width: 170px;">
+        </a>
+      </p>
+    </div>
+   
+  </body>
+<html>
+{{ end }}
