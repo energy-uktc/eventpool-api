@@ -24,8 +24,10 @@ func RegisterAuthRoutes(g *gin.RouterGroup) {
 
 func registerUser(c *gin.Context) {
 	user := new(models.CreateUserRequest)
-	if c.Bind(user) != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+	if c.ShouldBind(user) != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid Data",
+		})
 		return
 	}
 	mobileAppUrl := c.Query("mobileAppUrl")

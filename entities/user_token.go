@@ -16,7 +16,7 @@ const (
 )
 
 func (t TokenType) String() string {
-	return [...]string{"RefreshToken", "VerificationCode"}[t-1]
+	return [...]string{"RefreshToken", "VerificationCode", "ResetPasswordCode"}[t-1]
 }
 
 type UserToken struct {

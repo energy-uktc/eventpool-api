@@ -19,10 +19,7 @@ func GetUser(id string) (*models.UserModel, error) {
 	if user, err = user_repository.FindById(id); err != nil {
 		return nil, err
 	}
-	return &models.UserModel{
-		Email:    user.Email,
-		UserName: user.UserName,
-	}, nil
+	return user.ToModel(), nil
 }
 
 func UpdateUser(id string, updatedUser *models.UpdateUserModel) (*models.UserModel, error) {
@@ -35,10 +32,7 @@ func UpdateUser(id string, updatedUser *models.UpdateUserModel) (*models.UserMod
 	if user, err = user_repository.UpdateUser(user); err != nil {
 		return nil, err
 	}
-	return &models.UserModel{
-		Email:    user.Email,
-		UserName: user.UserName,
-	}, nil
+	return user.ToModel(), nil
 }
 
 func RegisterUser(userModel *models.CreateUserRequest) (*entities.User, error) {

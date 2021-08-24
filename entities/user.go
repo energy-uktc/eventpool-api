@@ -3,6 +3,7 @@ package entities
 import (
 	"time"
 
+	"github.com/energy-uktc/eventpool-api/models"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 )
@@ -17,6 +18,7 @@ type User struct {
 	Email     string `gorm:"uniqueIndex"`
 	Password  string
 	Verified  bool
+	Events    []Event `gorm:"many2many:user_events;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
@@ -26,4 +28,12 @@ func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
 
 func NewUserFromID(id string) *User {
 	return &User{ID: uuid.FromStringOrNil(id)}
+}
+
+func (u *User) ToModel() *models.UserModel {
+	return &models.UserModel{
+		Id:       u.ID.String(),
+		Email:    u.Email,
+		UserName: u.UserName,
+	}
 }
