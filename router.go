@@ -20,6 +20,7 @@ func configureRoutes() {
 	v1 := router.Group("/api/v1", middlewares.AuthRequired)
 	api.RegisterEventRoutes(v1.Group("/events"))
 	api.RegisterUserRoutes(v1.Group("/user"))
+	api.RegisterEventUserRoutes(v1.Group("/events/:eventId/users"))
 
 	//Web Groups
 	webContent := router.Group("/web")

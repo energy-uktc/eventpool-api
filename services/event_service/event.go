@@ -7,6 +7,7 @@ import (
 	"github.com/energy-uktc/eventpool-api/models"
 	"github.com/energy-uktc/eventpool-api/repositories/event_repository"
 	"github.com/energy-uktc/eventpool-api/repositories/user_repository"
+	"github.com/energy-uktc/eventpool-api/services/user_service"
 )
 
 func Create(model *models.CreateEvent) (*models.Event, error) {
@@ -23,13 +24,24 @@ func Create(model *models.CreateEvent) (*models.Event, error) {
 	return event.ToModel(), nil
 }
 
-func Update(id string, model *models.UpdateEvent) (*models.Event, error) {
+func Update(id string, partial bool, model *models.UpdateEvent) (*models.Event, error) {
 	event, err := event_repository.FindById(id)
 	if err != nil {
 		return nil, err
 	}
-	event.ParseUpdateModel(model)
-	updatedEvent, err := event_repository.Update(event)
+
+	var updatedEvent *entities.Event
+	if partial {
+		eventToUpdate := &entities.Event{
+			ID: event.ID,
+		}
+		eventToUpdate.ParseUpdateModel(model)
+		updatedEvent, err = event_repository.UpdatePartial(eventToUpdate)
+	} else {
+		event.ParseUpdateModel(model)
+		updatedEvent, err = event_repository.Update(event)
+	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -81,4 +93,30 @@ func FindActiveEvents(userId string) ([]*models.Event, error) {
 		}
 	}
 	return activeEvents, nil
+}
+
+func AssignUser(eventId string, userId string) error {
+	event, err := event_repository.FindById(eventId)
+	if err != nil {
+		return err
+	}
+	user, err := user_repository.FindById(userId)
+	if err != nil {
+		return err
+	}
+
+	return event_repository.AppendAtendee(event, user)
+}
+
+func RemoveUser(eventId string, userId string) error {
+	event, err := event_repository.FindById(eventId)
+	if err != nil {
+		return err
+	}
+	user, err := user_service.GetUser(userId)
+	if err != nil {
+		return err
+	}
+
+	return event_repository.RemoveAtendee(event, &entities.User{ID: user.Id})
 }

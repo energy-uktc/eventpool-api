@@ -11,10 +11,11 @@ import (
 
 func RegisterEventRoutes(g *gin.RouterGroup) {
 	g.GET("", getEvents)
-	g.GET("/:id", getEvent)
+	g.GET("/:eventId", getEvent)
 	g.POST("", createEvent)
-	g.PUT("/:id", updateEvent)
-	g.DELETE("/:id", deleteEvent)
+	g.PUT("/:eventId", updateEvent)
+	g.PATCH("/:eventId", updateEvent)
+	g.DELETE("/:eventId", deleteEvent)
 }
 
 func getEvents(c *gin.Context) {
@@ -45,7 +46,7 @@ func getEvents(c *gin.Context) {
 }
 
 func getEvent(c *gin.Context) {
-	id := c.Param("id")
+	id := c.Param("eventId")
 	events, err := event_service.FindById(id)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
@@ -81,7 +82,7 @@ func createEvent(c *gin.Context) {
 }
 
 func updateEvent(c *gin.Context) {
-	id := c.Param("id")
+	id := c.Param("eventId")
 	event := new(models.UpdateEvent)
 	if c.ShouldBind(event) != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
@@ -89,7 +90,8 @@ func updateEvent(c *gin.Context) {
 		})
 		return
 	}
-	updatedEvent, err := event_service.Update(id, event)
+	partialUpdate := c.Request.Method == http.MethodPatch
+	updatedEvent, err := event_service.Update(id, partialUpdate, event)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -100,7 +102,7 @@ func updateEvent(c *gin.Context) {
 }
 
 func deleteEvent(c *gin.Context) {
-	id := c.Param("id")
+	id := c.Param("eventId")
 	err := event_service.Delete(id)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{

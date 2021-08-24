@@ -12,14 +12,14 @@ import (
 
 //Event ...
 type Event struct {
-	ID          uuid.UUID `gorm:"primarykey;type:uuid"`
+	ID          string `gorm:"primarykey;type:uuid"`
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 	DeletedAt   gorm.DeletedAt `gorm:"index"`
 	Title       string
 	Description string
-	CreatedByID uuid.UUID
-	CreatedBy   *User `gorm:"foreignKey:CreatedByID"`
+	CreatedByID string `gorm:"type:uuid"`
+	CreatedBy   *User  `gorm:"foreignKey:CreatedByID"`
 	StartDate   *time.Time
 	EndDate     *time.Time
 	Location    datatypes.JSON
@@ -28,7 +28,7 @@ type Event struct {
 
 func (e *Event) ToModel() *models.Event {
 	model := &models.Event{
-		Id:               e.ID.String(),
+		Id:               e.ID,
 		Title:            e.Title,
 		Description:      e.Description,
 		StartDate:        e.StartDate,
@@ -69,13 +69,14 @@ func (e *Event) ParseUpdateModel(eventModel *models.UpdateEvent) {
 func (e *Event) ParseCreateModel(eventModel *models.CreateEvent) {
 	e.Title = eventModel.Title
 	e.Description = eventModel.Description
-	e.CreatedByID = uuid.FromStringOrNil(eventModel.CreatedBy)
+	e.CreatedByID = eventModel.CreatedBy
 	e.StartDate = eventModel.StartDate
 	e.EndDate = eventModel.EndDate
-	e.Atendees = []User{{ID: uuid.FromStringOrNil(eventModel.CreatedBy)}}
+	e.Atendees = []User{{ID: eventModel.CreatedBy}}
 }
 
 func (e *Event) BeforeCreate(tx *gorm.DB) (err error) {
-	e.ID, _ = uuid.NewV4()
+	uid, _ := uuid.NewV4()
+	e.ID = uid.String()
 	return
 }

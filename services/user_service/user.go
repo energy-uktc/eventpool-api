@@ -142,7 +142,7 @@ func RefreshToken(refreshTokenRequest *models.RefreshTokenRequest) (*models.Gene
 		return nil, fmt.Errorf("Refresh token has expired")
 	}
 
-	if claims.CustomerInfo.Id != userToken.UserID.String() {
+	if claims.CustomerInfo.Id != userToken.UserID {
 		return nil, fmt.Errorf("Refresh token not valid")
 	}
 
@@ -227,7 +227,7 @@ func ChangePassword(email string, oldPassword string, newPassword string) error 
 }
 
 func generateToken(user *entities.User) (*models.GeneratedTokenResponse, error) {
-	generatedToken, err := jwt_service.CreateToken(user.ID.String(), nil)
+	generatedToken, err := jwt_service.CreateToken(user.ID, nil)
 	if err != nil {
 		return nil, err
 	}

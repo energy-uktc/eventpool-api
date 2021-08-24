@@ -9,6 +9,7 @@ import (
 	"github.com/energy-uktc/eventpool-api/entities"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 func Create(event *entities.Event) (string, error) {
@@ -17,16 +18,25 @@ func Create(event *entities.Event) (string, error) {
 		log.Println(response.Error)
 		return "", fmt.Errorf("Something went wrong during event creation.")
 	}
-	return event.ID.String(), nil
+	return event.ID, nil
 }
 
 func Update(event *entities.Event) (*entities.Event, error) {
-	response := database.DbConn.Save(event)
+	response := database.DbConn.Omit(clause.Associations).Save(event)
 	if response.Error != nil {
 		log.Println(response.Error)
 		return nil, fmt.Errorf("Something went wrong during event update.")
 	}
-	return FindById(event.ID.String())
+	return FindById(event.ID)
+}
+
+func UpdatePartial(event *entities.Event) (*entities.Event, error) {
+	response := database.DbConn.Updates(&event)
+	if response.Error != nil {
+		log.Println(response.Error)
+		return nil, fmt.Errorf("Something went wrong during event update.")
+	}
+	return FindById(event.ID)
 }
 
 func FindById(id string) (*entities.Event, error) {
@@ -65,6 +75,24 @@ func CountActivities(event *entities.Event) int {
 	// }
 	// return events, nil
 	return 0
+}
+
+func AppendAtendee(event *entities.Event, user *entities.User) error {
+	err := database.DbConn.Omit("Atendees.*").Model(&event).Association("Atendees").Append(&entities.User{ID: user.ID})
+	if err != nil {
+		log.Println(err)
+		return fmt.Errorf("Something went wrong")
+	}
+	return nil
+}
+
+func RemoveAtendee(event *entities.Event, user *entities.User) error {
+	err := database.DbConn.Omit("Atendees.*").Model(event).Association("Atendees").Delete(user)
+	if err != nil {
+		log.Println(err)
+		return fmt.Errorf("Something went wrong")
+	}
+	return nil
 }
 
 func CountAtendees(event *entities.Event) int {

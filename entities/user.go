@@ -10,7 +10,7 @@ import (
 
 //User ...
 type User struct {
-	ID        uuid.UUID `gorm:"primarykey;type:uuid"`
+	ID        string `gorm:"primarykey;type:uuid"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
@@ -22,17 +22,18 @@ type User struct {
 }
 
 func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
-	u.ID, _ = uuid.NewV4()
+	uid, _ := uuid.NewV4()
+	u.ID = uid.String()
 	return
 }
 
 func NewUserFromID(id string) *User {
-	return &User{ID: uuid.FromStringOrNil(id)}
+	return &User{ID: id}
 }
 
 func (u *User) ToModel() *models.UserModel {
 	return &models.UserModel{
-		Id:       u.ID.String(),
+		Id:       u.ID,
 		Email:    u.Email,
 		UserName: u.UserName,
 	}

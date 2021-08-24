@@ -58,7 +58,7 @@ func UpdateUser(user *entities.User) (*entities.User, error) {
 		return nil, fmt.Errorf("Something went wrong")
 	}
 
-	return FindById(user.ID.String())
+	return FindById(user.ID)
 }
 
 func FindUserToken(code string, tokenType entities.TokenType) (*entities.UserToken, error) {
