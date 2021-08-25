@@ -12,6 +12,7 @@ type Event struct {
 	NumberOfAtendees   int          `json:"numberOfAtendees"`
 	Atendees           []*UserModel `json:"atendees,omitempty"`
 	NumberOfActivities int          `json:"numberOfActivities"`
+	Activities         []*Activity  `json:"activities,omitempty"`
 	Location           *Location    `json:"location,omitempty"`
 }
 

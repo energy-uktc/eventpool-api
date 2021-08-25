@@ -42,9 +42,14 @@ func UpdatePartial(event *entities.Event) (*entities.Event, error) {
 func FindById(id string) (*entities.Event, error) {
 	var event *entities.Event
 	var users []entities.User
+	var activities []entities.Activity
+
 	response := database.DbConn.Joins("CreatedBy").First(&event, uuid.FromStringOrNil(id))
 	database.DbConn.Model(&event).Association("Atendees").Find(&users)
+	database.DbConn.Model(&event).Association("Activities").Find(&activities)
+
 	event.Atendees = users
+	event.Activities = activities
 	if response.Error != nil {
 		if errors.Is(response.Error, gorm.ErrRecordNotFound) {
 			return nil, fmt.Errorf("Event Not Found")
@@ -64,17 +69,6 @@ func FindUserEvents(user *entities.User) ([]entities.Event, error) {
 		return nil, fmt.Errorf("Something went wrong")
 	}
 	return events, nil
-}
-
-func CountActivities(event *entities.Event) int {
-	// var events []entities.Event
-	// err := database.DbConn.Model(&event).Association("A").Find(&events)
-	// if err != nil {
-	// 	log.Println(err)
-	// 	return nil, fmt.Errorf("Something went wrong")
-	// }
-	// return events, nil
-	return 0
 }
 
 func AppendAtendee(event *entities.Event, user *entities.User) error {
@@ -97,6 +91,10 @@ func RemoveAtendee(event *entities.Event, user *entities.User) error {
 
 func CountAtendees(event *entities.Event) int {
 	return int(database.DbConn.Model(&event).Association("Atendees").Count())
+}
+
+func CountActivities(event *entities.Event) int {
+	return int(database.DbConn.Model(&event).Association("Activities").Count())
 }
 
 func Delete(id string) error {

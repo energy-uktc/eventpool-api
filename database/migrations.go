@@ -12,6 +12,7 @@ func UpdateSchema() {
 		&entities.Event{},
 		&entities.User{},
 		&entities.UserToken{},
+		&entities.Activity{},
 	)
 
 	if err != nil {

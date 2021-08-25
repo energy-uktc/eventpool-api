@@ -15,7 +15,6 @@ type Event struct {
 	ID          string `gorm:"primarykey;type:uuid"`
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
-	DeletedAt   gorm.DeletedAt `gorm:"index"`
 	Title       string
 	Description string
 	CreatedByID string `gorm:"type:uuid"`
@@ -23,17 +22,19 @@ type Event struct {
 	StartDate   *time.Time
 	EndDate     *time.Time
 	Location    datatypes.JSON
-	Atendees    []User `gorm:"many2many:user_events;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Atendees    []User     `gorm:"many2many:user_events;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Activities  []Activity `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 func (e *Event) ToModel() *models.Event {
 	model := &models.Event{
-		Id:               e.ID,
-		Title:            e.Title,
-		Description:      e.Description,
-		StartDate:        e.StartDate,
-		EndDate:          e.EndDate,
-		NumberOfAtendees: len(e.Atendees),
+		Id:                 e.ID,
+		Title:              e.Title,
+		Description:        e.Description,
+		StartDate:          e.StartDate,
+		EndDate:            e.EndDate,
+		NumberOfAtendees:   len(e.Atendees),
+		NumberOfActivities: len(e.Activities),
 	}
 
 	if e.CreatedBy != nil {
@@ -42,6 +43,11 @@ func (e *Event) ToModel() *models.Event {
 	if e.Atendees != nil {
 		for _, user := range e.Atendees {
 			model.Atendees = append(model.Atendees, user.ToModel())
+		}
+	}
+	if e.Activities != nil {
+		for _, activity := range e.Activities {
+			model.Activities = append(model.Activities, activity.ToModel())
 		}
 	}
 	if e.Location != nil {
