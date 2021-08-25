@@ -33,7 +33,13 @@ func NewUserFromID(id string) *User {
 
 func (u *User) ToModel() *models.UserModel {
 	return &models.UserModel{
-		Id:       u.ID,
+		Id:              u.ID,
+		SimpleUserModel: *u.ToSimpleModel(),
+	}
+}
+
+func (u *User) ToSimpleModel() *models.SimpleUserModel {
+	return &models.SimpleUserModel{
 		Email:    u.Email,
 		UserName: u.UserName,
 	}

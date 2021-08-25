@@ -7,7 +7,6 @@ import (
 
 	"github.com/energy-uktc/eventpool-api/database"
 	"github.com/energy-uktc/eventpool-api/entities"
-	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -58,12 +57,8 @@ func FindForEvent(eventId string) ([]*entities.Activity, error) {
 	return activities, nil
 }
 
-func Delete(id string) error {
-	uid, err := uuid.FromString(id)
-	if err != nil {
-		return fmt.Errorf("Event Not Found")
-	}
-	response := database.DbConn.Delete(&entities.Activity{}, uid)
+func Delete(eventId string, id string) error {
+	response := database.DbConn.Delete(&entities.Activity{ID: id, EventID: eventId})
 	if response.Error != nil {
 		if errors.Is(response.Error, gorm.ErrRecordNotFound) {
 			return fmt.Errorf("Activity Not Found")

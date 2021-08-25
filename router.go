@@ -22,6 +22,8 @@ func configureRoutes() {
 	api.RegisterUserRoutes(v1.Group("/user"))
 	api.RegisterEventUserRoutes(v1.Group("/events/:eventId/users"))
 	api.RegisterActivityRoutes(v1.Group("/events/:eventId/activities"))
+	api.RegisterPollRoutes(v1.Group("/events/:eventId/polls"))
+
 	//Web Groups
 	webContent := router.Group("/web")
 	web.RegisterAuthRoutes(webContent.Group("/auth"))

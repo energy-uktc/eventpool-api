@@ -86,7 +86,9 @@ func updateActivity(c *gin.Context) {
 
 func deleteActivity(c *gin.Context) {
 	id := c.Param("activityId")
-	err := activity_service.Delete(id)
+	eventId := c.Param("eventId")
+
+	err := activity_service.Delete(eventId, id)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),

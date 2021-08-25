@@ -7,6 +7,7 @@ import (
 
 	"github.com/energy-uktc/eventpool-api/database"
 	"github.com/energy-uktc/eventpool-api/entities"
+	"github.com/energy-uktc/eventpool-api/repositories/poll_repository"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -43,13 +44,23 @@ func FindById(id string) (*entities.Event, error) {
 	var event *entities.Event
 	var users []entities.User
 	var activities []entities.Activity
+	var polls []*entities.Poll
+	var err error
 
 	response := database.DbConn.Joins("CreatedBy").First(&event, uuid.FromStringOrNil(id))
 	database.DbConn.Model(&event).Association("Atendees").Find(&users)
 	database.DbConn.Model(&event).Association("Activities").Find(&activities)
+	if polls, err = poll_repository.FindForEvent(id); err != nil {
+		log.Println(response.Error)
+		return nil, fmt.Errorf("Something went wrong")
+	}
 
 	event.Atendees = users
 	event.Activities = activities
+	for _, poll := range polls {
+		event.Polls = append(event.Polls, *poll)
+	}
+
 	if response.Error != nil {
 		if errors.Is(response.Error, gorm.ErrRecordNotFound) {
 			return nil, fmt.Errorf("Event Not Found")
@@ -95,6 +106,10 @@ func CountAtendees(event *entities.Event) int {
 
 func CountActivities(event *entities.Event) int {
 	return int(database.DbConn.Model(&event).Association("Activities").Count())
+}
+
+func CountPolls(event *entities.Event) int {
+	return int(database.DbConn.Model(&event).Association("Polls").Count())
 }
 
 func Delete(id string) error {

@@ -24,6 +24,7 @@ type Event struct {
 	Location    datatypes.JSON
 	Atendees    []User     `gorm:"many2many:user_events;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Activities  []Activity `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Polls       []Poll     `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 func (e *Event) ToModel() *models.Event {
@@ -35,6 +36,7 @@ func (e *Event) ToModel() *models.Event {
 		EndDate:            e.EndDate,
 		NumberOfAtendees:   len(e.Atendees),
 		NumberOfActivities: len(e.Activities),
+		NumberOfPolls:      len(e.Polls),
 	}
 
 	if e.CreatedBy != nil {
@@ -42,7 +44,7 @@ func (e *Event) ToModel() *models.Event {
 	}
 	if e.Atendees != nil {
 		for _, user := range e.Atendees {
-			model.Atendees = append(model.Atendees, user.ToModel())
+			model.Atendees = append(model.Atendees, user.ToSimpleModel())
 		}
 	}
 	if e.Activities != nil {
@@ -50,6 +52,12 @@ func (e *Event) ToModel() *models.Event {
 			model.Activities = append(model.Activities, activity.ToModel())
 		}
 	}
+	if e.Polls != nil {
+		for _, poll := range e.Polls {
+			model.Polls = append(model.Polls, poll.ToModel())
+		}
+	}
+
 	if e.Location != nil {
 		locationBytes, _ := e.Location.MarshalJSON()
 		location := &models.Location{}

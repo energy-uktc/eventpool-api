@@ -56,6 +56,6 @@ func FindById(eventId string, id string) (*models.Activity, error) {
 	return activity.ToModel(), nil
 }
 
-func Delete(id string) error {
-	return activity_repository.Delete(id)
+func Delete(eventId, id string) error {
+	return activity_repository.Delete(eventId, id)
 }

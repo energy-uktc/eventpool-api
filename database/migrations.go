@@ -13,6 +13,8 @@ func UpdateSchema() {
 		&entities.User{},
 		&entities.UserToken{},
 		&entities.Activity{},
+		&entities.Poll{},
+		&entities.PollAnswer{},
 	)
 
 	if err != nil {

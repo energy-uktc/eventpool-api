@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type TokenType int
+type TokenType uint8
 
 const (
 	RefreshToken TokenType = iota + 1
