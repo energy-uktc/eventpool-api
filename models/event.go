@@ -11,8 +11,8 @@ type Event struct {
 	CreatedBy          *UserModel         `json:"createdBy,omitempty"`
 	StartDate          *time.Time         `json:"startDate"`
 	EndDate            *time.Time         `json:"endDate,omitempty"`
-	NumberOfAtendees   int                `json:"numberOfAtendees"`
-	Atendees           []*SimpleUserModel `json:"atendees,omitempty"`
+	NumberOfAttendees  int                `json:"numberOfAttendees"`
+	Attendees          []*SimpleUserModel `json:"attendees,omitempty"`
 	NumberOfActivities int                `json:"numberOfActivities"`
 	Activities         []*Activity        `json:"activities,omitempty"`
 	NumberOfPolls      int                `json:"numberOfPolls"`

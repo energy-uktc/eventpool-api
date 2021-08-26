@@ -14,7 +14,7 @@ import (
 )
 
 func Create(event *entities.Event) (string, error) {
-	response := database.DbConn.Omit("Atendees.*").Create(event)
+	response := database.DbConn.Omit("Attendees.*").Create(event)
 	if response.Error != nil {
 		log.Println(response.Error)
 		return "", fmt.Errorf("Something went wrong during event creation.")
@@ -48,14 +48,14 @@ func FindById(id string) (*entities.Event, error) {
 	var err error
 
 	response := database.DbConn.Joins("CreatedBy").First(&event, uuid.FromStringOrNil(id))
-	database.DbConn.Model(&event).Association("Atendees").Find(&users)
+	database.DbConn.Model(&event).Association("Attendees").Find(&users)
 	database.DbConn.Model(&event).Association("Activities").Find(&activities)
 	if polls, err = poll_repository.FindForEvent(id); err != nil {
 		log.Println(response.Error)
 		return nil, fmt.Errorf("Something went wrong")
 	}
 
-	event.Atendees = users
+	event.Attendees = users
 	event.Activities = activities
 	for _, poll := range polls {
 		event.Polls = append(event.Polls, *poll)
@@ -83,7 +83,7 @@ func FindUserEvents(user *entities.User) ([]entities.Event, error) {
 }
 
 func AppendAtendee(event *entities.Event, user *entities.User) error {
-	err := database.DbConn.Omit("Atendees.*").Model(&event).Association("Atendees").Append(&entities.User{ID: user.ID})
+	err := database.DbConn.Omit("Attendees.*").Model(&event).Association("Attendees").Append(&entities.User{ID: user.ID})
 	if err != nil {
 		log.Println(err)
 		return fmt.Errorf("Something went wrong")
@@ -92,7 +92,7 @@ func AppendAtendee(event *entities.Event, user *entities.User) error {
 }
 
 func RemoveAtendee(event *entities.Event, user *entities.User) error {
-	err := database.DbConn.Omit("Atendees.*").Model(event).Association("Atendees").Delete(user)
+	err := database.DbConn.Omit("Attendees.*").Model(event).Association("Attendees").Delete(user)
 	if err != nil {
 		log.Println(err)
 		return fmt.Errorf("Something went wrong")
@@ -100,8 +100,8 @@ func RemoveAtendee(event *entities.Event, user *entities.User) error {
 	return nil
 }
 
-func CountAtendees(event *entities.Event) int {
-	return int(database.DbConn.Model(&event).Association("Atendees").Count())
+func CountAttendees(event *entities.Event) int {
+	return int(database.DbConn.Model(&event).Association("Attendees").Count())
 }
 
 func CountActivities(event *entities.Event) int {

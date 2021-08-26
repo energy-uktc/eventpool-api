@@ -61,7 +61,7 @@ func FindAllForUser(userId string) ([]*models.Event, error) {
 	var eventModels []*models.Event
 	for _, event := range events {
 		eventModel := event.ToModel()
-		eventModel.NumberOfAtendees = event_repository.CountAtendees(&event)
+		eventModel.NumberOfAttendees = event_repository.CountAttendees(&event)
 		eventModel.NumberOfActivities = event_repository.CountActivities(&event)
 		eventModel.NumberOfPolls = event_repository.CountPolls(&event)
 		eventModels = append(eventModels, eventModel)
