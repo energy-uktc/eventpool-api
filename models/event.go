@@ -35,3 +35,8 @@ type UpdateEvent struct {
 	EndDate     *time.Time `json:"endDate"`
 	Location    *Location  `json:"location"`
 }
+
+type InvitationRequest struct {
+	EventId string   `json:"eventId" binding:"required"`
+	Emails  []string `json:"emails" binding:"required"`
+}

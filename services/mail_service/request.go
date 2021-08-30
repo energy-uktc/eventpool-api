@@ -55,6 +55,29 @@ func ResetPasswordRequest(name string, email string, verificationCode string, mo
 
 }
 
+func SendInvitation(to string, from string, eventId string, eventName string, email string, mobileAppUrl string) {
+	request := &Request{
+		to:      []string{email},
+		subject: "Eventpool: Event invitation",
+	}
+
+	valuesMap := make(map[string]string)
+	valuesMap["to"] = to
+	valuesMap["from"] = from
+	valuesMap["eventName"] = eventName
+	valuesMap["url"] = fmt.Sprintf("%s/web/event/%s/invite?&mobileLink=%s", config.Properties.Hostname, eventId, mobileAppUrl)
+
+	if err := request.parseTemplate("./templates/mail/event_invitation.html", valuesMap); err == nil {
+		mime := "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
+		subject := "Subject: " + request.subject + "\n"
+		message := subject + mime + "\n" + request.body
+		send(request.to, message)
+	} else {
+		log.Println(err)
+	}
+
+}
+
 func (r *Request) parseTemplate(templateFileName string, data interface{}) error {
 	t, err := template.ParseFiles(templateFileName)
 	if err != nil {

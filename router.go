@@ -27,6 +27,8 @@ func configureRoutes() {
 	//Web Groups
 	webContent := router.Group("/web")
 	web.RegisterAuthRoutes(webContent.Group("/auth"))
+	web.RegisterEventRoutes(webContent.Group("/event/:eventId"))
+
 	err := router.Run()
 	if err != nil {
 		log.Fatal(err)
