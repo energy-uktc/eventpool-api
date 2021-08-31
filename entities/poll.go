@@ -87,7 +87,8 @@ func (p *Poll) ParsePollAnswers(answers []*models.PollAnswerModel) {
 	}
 	for _, option := range answers {
 		p.Options = append(p.Options, PollAnswer{
-			Text: option.Text,
+			Text:      option.Text,
+			ShowOrder: option.ShowOrder,
 		})
 	}
 }
