@@ -33,6 +33,7 @@ func (a *Activity) ParseModel(model *models.CreateUpdateActivity) {
 	a.Title = model.Title
 	a.Description = model.Description
 	a.DateTime = model.DateTime
+	a.Location = nil
 	if model.Location != nil && model.Location.Latitude != 0 && model.Location.Longitude != 0 {
 		locationBytes, _ := json.Marshal(model.Location)
 		a.Location = datatypes.JSON(locationBytes)

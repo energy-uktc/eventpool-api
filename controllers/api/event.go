@@ -84,7 +84,7 @@ func createEvent(c *gin.Context) {
 func updateEvent(c *gin.Context) {
 	id := c.Param("eventId")
 	event := new(models.UpdateEvent)
-	if c.ShouldBind(event) != nil {
+	if err := c.ShouldBind(event); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": "Invalid data",
 		})
