@@ -39,6 +39,10 @@ func getDatabaseConfiguration() Configuration {
 		postgresql := &PostgresqlConfiguration{}
 		postgresql.LoadConfiguration()
 		return postgresql
+	} else if config.Properties.Database == "cloudpostgresql" {
+		cloudDb := &CloudSqlConfiguration{}
+		cloudDb.LoadConfiguration()
+		return cloudDb
 	}
 	panic("No database configuration found")
 }
